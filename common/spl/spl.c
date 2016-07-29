@@ -465,6 +465,14 @@ ulong spl_relocate_stack_gd(void)
 #if !defined(CONFIG_ARM)
 	gd = new_gd;
 #endif
+
+	/* revert:
+	 * http://git.denx.de/?p=u-boot.git;a=commit;h=8656c4f76f012254a1a01d6d7956d85d7d3d73bf
+	 * fixes 1GB am335x
+	 */
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
 	return ptr;
 #else
 	return 0;

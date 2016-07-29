@@ -237,6 +237,13 @@ static struct module_pin_mux bone_norcape_pin_mux[] = {
 };
 #endif
 
+static struct module_pin_mux bbb_p9_15_pin_mux[] = {
+	/* P9.15 shared pin */
+	{OFFSET(gpmc_a0), MODE(0) | PULLUDDIS},
+	{OFFSET(gpmc_csn3), (MODE(3) | RXACTIVE | PULLUP_EN)},
+	{-1},
+};
+
 #if defined(CONFIG_NOR_BOOT)
 void enable_norboot_pin_mux(void)
 {
@@ -356,7 +363,14 @@ void enable_board_pin_mux(void)
 		configure_module_pin_mux(mmc0_pin_mux_sk_evm);
 	} else if (board_is_bone_lt()) {
 		/* Beaglebone LT pinmux */
-		configure_module_pin_mux(mii1_pin_mux);
+		if(board_is_bone_lt_enhanced()) {
+			/* SanCloud Beaglebone LT Enhanced pinmux */
+			configure_module_pin_mux(rgmii1_pin_mux);
+		}
+		else {
+			/* Beaglebone LT pinmux */
+			configure_module_pin_mux(mii1_pin_mux);
+		}
 		configure_module_pin_mux(mmc0_pin_mux);
 #if defined(CONFIG_NAND) && defined(CONFIG_EMMC_BOOT)
 		configure_module_pin_mux(nand_pin_mux);
@@ -364,6 +378,7 @@ void enable_board_pin_mux(void)
 		configure_module_pin_mux(bone_norcape_pin_mux);
 #else
 		configure_module_pin_mux(mmc1_pin_mux);
+		configure_module_pin_mux(bbb_p9_15_pin_mux);
 #endif
 	} else {
 		puts("Unknown board, cannot configure pinmux.");
