@@ -5,6 +5,10 @@
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
  *
+ * Modified by Biagio montaruli <biagio-mkr@libero.it> in order to configure
+ * U-Boot for Arduino Tre board https://www.arduino.cc/en/Main/ArduinoBoardTre
+ *
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -123,6 +127,23 @@
 #define MT41J512M8RH125_PHY_FIFO_WE		0xA5
 #define MT41J512M8RH125_PHY_WR_DATA		0x74
 #define MT41J512M8RH125_IOCTRL_VALUE		0x18B
+
+/* DDR3 definitions for Arduino Tre board rev A1 */
+#define TREBOARD_A1_EMIF_READ_LATENCY		0x07
+#define TREBOARD_A1_EMIF_TIM1			0x0AAAD4DB
+#define TREBOARD_A1_EMIF_TIM2			0x266B7FDA
+#define TREBOARD_A1_EMIF_TIM3			0x501F876F
+#define TREBOARD_A1_EMIF_SDCFG			0x61C05332
+#define TREBOARD_A1_EMIF_SDREF			0x00000C30
+#define TREBOARD_A1_ZQ_CFG				0x50074BE4
+#define TREBOARD_A1_DLL_LOCK_DIFF			0x1
+#define TREBOARD_A1_RATIO					0x80
+#define TREBOARD_A1_INVERT_CLKOUT			0x0
+#define TREBOARD_A1_RD_DQS					0x3A
+#define TREBOARD_A1_WR_DQS					0x48
+#define TREBOARD_A1_PHY_FIFO_WE				0x95
+#define TREBOARD_A1_PHY_WR_DATA				0x7E
+#define TREBOARD_A1_IOCTRL_VALUE			0x18B
 
 /* Samsung K4B2G1646E-BIH9 */
 #define K4B2G1646EBIH9_EMIF_READ_LATENCY	0x100007
