@@ -1,0 +1,124 @@
+Summary
+=======
+
+This README document covers various features of the 'arduinotre' build
+The U-Boot configuration for Arduino Tre board is based on
+'am335x_evm' since Arduino Tre has many features in common with the
+TI AM335x-based boards like the Beaglebone Black.
+
+Hardware
+========
+
+The Arduino Tre board is a low cost development bard based on the TI Sitara AM335x 
+developed by Arduino LLC with the close collaboration of Beagleboard.org foundation.
+Arduino Tre integrates also a full AVR-Arduino based on the Atmel ATmega32U4 
+microcontroller connected to the Sitara SoC.
+Some techical specifications are :
+- SDRAM Memory 512MB DDR3L
+- Digital I/O Pins, 
+- PWM Channels, 
+- 1 USB 2.0 device port with Ethernet and Gadget support,
+- 4 USB 2.0 host ports,
+- 1 Ethernet 10/100 Port,
+- 1 HDMI connector for audio and video output.
+For more hardware specs visit :
+https://www.arduino.cc/en/Main/ArduinoBoardTre
+
+IMPORTANT NOTE :
+Arduino Tre board is not yet available on the market but there are some beta tester boards, 
+so the official hardware features might differ from these and 
+please consider that the official release date has not been announced yet.
+
+Build and Boot instructions
+===========================
+Building U-Boot for Arduino Tre on your host machine, requires a cross toolchain 
+and obviously a cross compiler.
+Depending your linux distro, first of all you have to set up your cross compile.
+For example in Ubuntu distro you can install the package "gcc-arm-linux-gnueabihf",
+instead in Debian distro you must add the Debian-cross toolchain repository
+and then install the "crossbuild-essential-armhf" package.
+For more info see : https://wiki.debian.org/CrossToolchains
+
+After setting up the cross toolchain use this commands : 
+
+1) Clean you U-Boot source directory :
+   $ make distclean or $ make mrproper
+
+2) Configure U-Boot for Arduino Tre :
+   $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- am335x_arduinotre_defconfig
+
+3) Build U-Boot
+   $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- 
+
+NOTE :
+- You can do a out-of-tree build using the environment variable O=/path/output/dir
+  with each make target using above
+- You can speed the build process, addind -j<N>, where N is number of compiler instances 
+  to run in parallel or you can use -j$(nproc)
+- Before configuring and building U-Boot you can export these enviroment variable used
+  during the boot process :
+  $ export ARCH=arm
+  $ export CROSS_COMPILE=arm-linux-gnueabihf-
+  then clean the source tree, configure and build U-Boot :
+  $ make mrproper
+  $ make am335x_arduinotre_defconfig
+  $ make -j$(nproc)
+
+
+By default, Arduino Tre boots over MMC card (mmc0 device) but it is also capable of 
+booting from the network. 
+Unlike other AM335x platforms, Arduino Tre hasn't NAND, NOR and even eMMC 
+but it could support SPI boot.
+During the boot process, Arduino Tre uses MLO (SPL) and u-boot.img (TPL) 
+and is able to load the kernel image and the device tree binary from the SD card.
+Depending on the linux distro used or the way the micro SD is formatted,
+U-Boot for Arduino tre is able to load the kernel image (both zImage and uImage)
+and the device tree binary (am335x-arduino-tre.dtb or arduino-tre.dtb used in the
+Arduino team distro) from the 1st, the 2nd or the 3rd partition of the SD card.
+Generally format and configure the SD card in this way :
+- 1st partition : FAT 16 or FAT 32 with bootable flag set
+                  Put in this partition MLO and u-boot.img
+
+- 2nd partition : ext4
+		  Put in this partition your rootfs with the kernel image
+		  and Arduino Tre dtb in the /boot directory
+
+You may also put the kernel image and dtb in the first FAT partition.
+Kernel image and dtb loading from the 3rd partition is used for the Arduino team
+Debian distro in which the rootfs is on the 3rd partition.
+
+Falcon Mode
+===========
+
+The default build includes "Falcon Mode" (see doc/README.falcon) via FAT SD cards.  
+Our default behavior currently is to read a 'c' on the console while in SPL at any point 
+prior to loading the OS payload (so as soon as possible) to opt to booting full U-Boot.  
+Also note that while one can program Falcon Mode "in place" great care needs to
+be taken by the user to not 'brick' their setup. 
+As these are all evalboards with multiple boot methods, recovery should not be an issue 
+in this worst-case however.
+
+Falcon Mode: FAT SD cards
+=========================
+
+In this case the additional file is written to the filesystem.  In this
+example we assume that the uImage and device tree to be used are already on
+the FAT filesystem (only the uImage MUST be for this to function
+afterwards) along with a Falcon Mode aware MLO and the FAT partition has
+already been created and marked bootable:
+
+U-Boot # mmc rescan
+# Load kernel and device tree into memory, perform export
+U-Boot # load mmc 0:1 ${loadaddr} uImage
+U-Boot # run findfdt
+U-Boot # load mmc 0:1 ${fdtaddr} ${fdtfile}
+U-Boot # run mmcargs
+U-Boot # spl export fdt ${loadaddr} - ${fdtaddr}
+
+This will print a number of lines and then end with something like:
+   Using Device Tree in place at 80f80000, end 80f85928
+   Using Device Tree in place at 80f80000, end 80f88928
+So then you:
+
+U-Boot # fatwrite mmc 0:1 0x80f80000 args 8928
+

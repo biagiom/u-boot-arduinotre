@@ -1,0 +1,7 @@
+ARDUINO TRE BOARD
+M:	Biagio Montaruli <biagio-mkr@libero.it>
+M:  	Martino Facchin  <m.facchin@arduino.cc>
+S:	Maintained
+F:	board/ti/arduinotre
+F:	include/configs/am335x_arduinotre.h
+F:	configs/am335x_arduinotre_defconfig
