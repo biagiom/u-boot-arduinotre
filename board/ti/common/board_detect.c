@@ -118,19 +118,26 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 
 int __maybe_unused ti_i2c_eeprom_am_get(int bus_addr, int dev_addr)
 {
-	int rc;
-	struct ti_am_eeprom am_ep;
 	struct ti_common_eeprom *ep;
 
 	ep = TI_EEPROM_DATA;
 	if (ep->header == TI_EEPROM_HEADER_MAGIC)
 		goto already_read;
 
+#ifdef CONFIG_TREBOARD
+	ep->header = TI_EEPROM_HEADER_MAGIC;
+	strncpy(ep->name, "TREBOARD", TI_EEPROM_HDR_NAME_LEN);
+	strncpy(ep->version, "00A1", TI_EEPROM_HDR_REV_LEN);
+	strncpy(ep->serial, "000000000000", TI_EEPROM_HDR_SERIAL_LEN);
+#else 
 	/* Initialize with a known bad marker for i2c fails.. */
 	ep->header = TI_DEAD_EEPROM_MAGIC;
 	ep->name[0] = 0x0;
 	ep->version[0] = 0x0;
 	ep->serial[0] = 0x0;
+
+	int rc;
+	struct ti_am_eeprom am_ep;
 
 	rc = ti_i2c_eeprom_get(bus_addr, dev_addr, TI_EEPROM_HEADER_MAGIC,
 			       sizeof(am_ep), (uint8_t *)&am_ep);
@@ -155,7 +162,7 @@ int __maybe_unused ti_i2c_eeprom_am_get(int bus_addr, int dev_addr)
 
 	memcpy(ep->mac_addr, am_ep.mac_addr,
 	       TI_EEPROM_HDR_NO_OF_MAC_ADDR * TI_EEPROM_HDR_ETH_ALEN);
-
+#endif
 already_read:
 	return 0;
 }
