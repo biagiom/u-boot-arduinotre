@@ -48,11 +48,11 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 #endif
 
 /*
- * Read header information from EEPROM into global structure.
+ * Initialize global structure for Arduino Tre data and get board info
  */
 static inline int __maybe_unused get_board_info(void)
 {
-	return ti_i2c_eeprom_am_get(-1, CONFIG_SYS_I2C_EEPROM_ADDR);
+	return arduinotre_virtual_eeprom_get();
 }
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
