@@ -110,6 +110,25 @@ struct ti_common_eeprom {
  */
 int ti_i2c_eeprom_am_get(int bus_addr, int dev_addr);
 
+#if defined(CONFIG_TARGET_AM335X_ARDUINOTRE)
+/**
+ * arduinotre_add_board_info() - Initialize Arduino Tre board info
+ * @vep: Pointer to struct ti_common_eeprom that has to be initialized 
+ * 		 with Arduino Tre board info
+ */
+void arduinotre_add_board_info(struct ti_common_eeprom *vep);
+
+/**
+ * arduinotre_virtual_eeprom() - Initialize Arduino Tre board info
+ *
+ * Unlike many TI AM* boards, Arduino tre has not an EEPROM used to
+ * read board info, so it uses this function to add Arduino Tre data without
+ * actually reading info from a real EEPROM
+ *
+ */
+int arduinotre_virtual_eeprom_get(void);
+#endif
+
 /**
  * ti_i2c_eeprom_dra7_get() - Consolidated eeprom data for DRA7 TI EVMs
  * @bus_addr:	I2C bus address
